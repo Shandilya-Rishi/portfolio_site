@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rishi | Portfolio</title>
+    <!-- Use a modern, slightly quirky font combination, akin to iamschulz -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=IBM+Plex+Mono:ital,wght@0,400;0,500;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+    <!-- Dynamic Background Canvas -->
+    <canvas id="bg-canvas"></canvas>
+
+    <div class="app-container">
+
+        <!-- Minimalist Header / Navigation -->
+        <header class="main-header">
+            <div class="header-inner">
+                <a href="#" class="brand-link tab-trigger" data-target="home">
+                    <img src="profile.png" alt="Rishi Shandilya" class="header-profile-pic">
+                    <span class="brand-name">Rishi Shandilya</span>
+                    <span class="brand-cursor">_</span>
+                </a>
+
+                <nav class="main-nav">
+                    <ul class="nav-links">
+                        <li><a href="#about" class="nav-link tab-btn active" data-target="home">about</a></li>
+                        <li><a href="#projects" class="nav-link tab-btn" data-target="projects">projects</a></li>
+                        <li><a href="#blog" class="nav-link tab-btn" data-target="blog">blog</a></li>
+                        <li><a href="#contact" class="nav-link tab-btn" data-target="contact">contact</a></li>
+                    </ul>
+                </nav>
+            </div>
+            <!-- Decorative git visual removed per user request -->
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="content-area">
+
+            <!-- Home / About Section -->
+            <section id="home" class="tab-panel active">
+                <div class="content-wrapper">
+                    <div class="hero-block">
+                        <h1 class="page-title">Hello</h1>
+                    </div>
+
+                    <div class="intro-block">
+                        <ul class="bullet-list large">
+                            <li>I am Rishi, a CSE Freshman from India.</li>
+                            <li>I explore <strong>AI & Machine Learning</strong>.</li>
+                            <li>Fun Fact: I watch and make <strong>Anime edits</strong>.</li>
+                        </ul>
+                    </div>
+
+                    <h2 class="section-heading">Find me here:</h2>
+                    <ul class="link-list horizontal mt-2">
+                        <li>
+                            <a href="https://github.com/Shandilya-Rishi" target="_blank" class="social-icon-link github"
+                                aria-label="GitHub">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" class="feather feather-github">
+                                    <path
+                                        d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22">
+                                    </path>
+                                </svg>
+                                <span>GitHub</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="https://www.linkedin.com/in/rishi-shandilya-081958334/" target="_blank"
+                                class="social-icon-link linkedin" aria-label="LinkedIn">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" class="feather feather-linkedin">
+                                    <path
+                                        d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z">
+                                    </path>
+                                    <rect x="2" y="9" width="4" height="12"></rect>
+                                    <circle cx="4" cy="4" r="2"></circle>
+                                </svg>
+                                <span>LinkedIn</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="https://x.com/Rishi_S2" target="_blank" class="social-icon-link x-twitter"
+                                aria-label="X (Twitter)">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" class="feather feather-twitter">
+                                    <path
+                                        d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z">
+                                    </path>
+                                </svg>
+                                <span>X (Twitter)</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="https://www.instagram.com/shandilya_rishi34/?hl=en" target="_blank"
+                                class="social-icon-link instagram" aria-label="Instagram">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" class="feather feather-instagram">
+                                    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                                    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                                    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                                </svg>
+                                <span>Instagram</span>
+                            </a>
+                        </li>
+                    </ul>
+                    <p class="mt-4">Or send me a <a href="mailto:rishishandilya1@outlook.com" class="inline-link">secure
+                            transmission (Mail)</a>.</p>
+
+                    <h2 class="section-heading mt-6">Working on it:</h2>
+                    <p class="working-text">
+                        Right now I'm building systems that learn from data and protect the networks they operate on.
+                        Currently navigating the intersection of intelligent models and secure architectures.
+                    </p>
+                </div>
+            </section>
+
+            <!-- Projects Section -->
+            <section id="projects" class="tab-panel">
+                <div class="content-wrapper">
+                    <h1 class="page-title">Projects</h1>
+                    <p class="subtitle mono">~/workspace/portfolio</p>
+
+                    <div class="project-list">
+                        <!-- Project 1: Comment Toxicity Detection System -->
+                        <article class="project-item">
+                            <div class="project-meta">
+                                <span class="status-badge git-branch">feature/toxicity-detection</span>
+                                <span class="date mono">ML</span>
+                            </div>
+                            <h3 class="project-title"><a href="https://github.com/Shandilya-Rishi" target="_blank"
+                                    class="feature-link">Comment Toxicity Detection System <span
+                                        class="arrow">→</span></a></h3>
+                            <p class="project-desc">A deep learning model built to identify and classify toxic comments
+                                online across various categories of toxicity. It leverages natural language processing
+                                techniques to flag harmful content.</p>
+
+                            <div class="project-carousel mt-4">
+                                <div class="carousel-track">
+                                    <img src="assets/projects/toxicity_tests.png" alt="Toxicity Test Outputs"
+                                        class="carousel-img active">
+                                    <img src="assets/projects/toxicity_graphs.png" alt="Toxicity Data Distribution"
+                                        class="carousel-img">
+                                    <img src="assets/projects/toxicity_imports_new.png"
+                                        alt="Python Library Imports Snippet" class="carousel-img">
+                                </div>
+                                <div class="carousel-controls">
+                                    <button class="carousel-btn prev-btn" aria-label="Previous image">&#10094;</button>
+                                    <span class="carousel-indicator mono text-small">1 / 3</span>
+                                    <button class="carousel-btn next-btn" aria-label="Next image">&#10095;</button>
+                                </div>
+                            </div>
+                        </article>
+
+                        <!-- Project 2: Console Based Messaging System -->
+                        <article class="project-item">
+                            <div class="project-meta">
+                                <span class="status-badge git-branch">feature/console-messenger</span>
+                                <span class="date mono">C</span>
+                            </div>
+                            <h3 class="project-title"><a href="https://github.com/Shandilya-Rishi" target="_blank"
+                                    class="feature-link">Console Based Messaging System <span class="arrow">→</span></a>
+                            </h3>
+                            <p class="project-desc">A lightweight, terminal-based messaging application written entirely
+                                in C. It handles basic routing and message delivery strictly running in the command-line
+                                interface.</p>
+                            <div class="project-carousel mt-4">
+                                <div class="carousel-track">
+                                    <img src="assets/projects/console_terminal.png" alt="Console Terminal Output"
+                                        class="carousel-img active">
+                                    <img src="assets/projects/console_code.png" alt="C Code Snippet"
+                                        class="carousel-img">
+                                </div>
+                                <div class="carousel-controls">
+                                    <button class="carousel-btn prev-btn" aria-label="Previous image">&#10094;</button>
+                                    <span class="carousel-indicator mono text-small">1 / 2</span>
+                                    <button class="carousel-btn next-btn" aria-label="Next image">&#10095;</button>
+                                </div>
+                            </div>
+                        </article>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Blog Section -->
+            <section id="blog" class="tab-panel">
+                <div class="content-wrapper">
+                    <h1 class="page-title">Terminal Log</h1>
+                    <p class="subtitle mono">~/var/log/learning</p>
+
+                    <div class="article-list mt-6">
+                        <article class="log-entry expanded">
+                            <div class="log-header">
+                                <time class="log-date mono">February 2026</time>
+                                <span class="log-tag">#Introduction</span>
+                                <span class="log-tag">#Hello-World</span>
+                            </div>
+                            <h3 class="log-title"><a href="#" class="feature-link">Hello, World! — A Little About Me
+                                    <span class="arrow">→</span></a></h3>
+
+                            <div class="log-content mt-4">
+                                <p>Every great journey starts with a single step — or in the developer world, a "Hello,
+                                    World!" So here's mine.</p>
+                                <p>My name is <strong>Rishi Shandilya</strong>, a Computer Science freshman based in
+                                    India, and this is my first blog post. I figured there's no better way to kick off
+                                    this space than by introducing myself, talking about what drives me, and sharing
+                                    what I'm looking forward to building.</p>
+
+                                <h4 class="mt-4 mb-2">Who Am I?</h4>
+                                <p>I'm someone who believes the best way to grow is to stay open — open to new
+                                    experiences, new ideas, and new challenges. As a CSE freshman, I'm still early in my
+                                    journey, but that's exactly what makes this phase exciting. Every concept I learn
+                                    feels like a new door opening, and I'm genuinely trying to walk through as many of
+                                    them as I can.</p>
+                                <p>I'm not the kind of person who waits for the "right moment" to start something. If
+                                    it's interesting, I explore it. If it challenges me, I lean in. That curiosity is
+                                    what keeps me going.</p>
+
+                                <h4 class="mt-4 mb-2">The Tech Side: Machine Learning</h4>
+                                <p>If there's one area that genuinely excites me right now, it's <strong>Machine
+                                        Learning</strong>. There's something almost magical about the idea of teaching a
+                                    machine to learn from data and make decisions — and I'm actively pursuing that. From
+                                    understanding the math behind models to experimenting with real datasets, I'm in the
+                                    thick of learning and I love it.</p>
+                                <p>ML feels like the frontier of what's possible in computing right now, and I want to
+                                    be someone who contributes to that frontier, not just watches it from a distance.
+                                </p>
+
+                                <h4 class="mt-4 mb-2">Open Source: Building in Public</h4>
+                                <p>One of my upcoming goals is to get serious about <strong>open source</strong>. I want
+                                    to work on my own projects and also contribute to others' — because I think that's
+                                    one of the best ways to actually grow as a developer. Reading production code,
+                                    collaborating with people across the world, shipping real features — that's the kind
+                                    of hands-on experience no classroom can fully replicate.</p>
+                                <p>If you're working on something interesting and could use a motivated contributor,
+                                    feel free to reach out. I'm all in.</p>
+
+                                <h4 class="mt-4 mb-2">The Creative Side: Anime Edits</h4>
+                                <p>Now, here's something that might surprise you — I also watch and make <strong>anime
+                                        edits</strong>. It's a creative outlet that's completely separate from code, and
+                                    I think that balance matters. Editing requires a good eye for storytelling, pacing,
+                                    and emotion — skills that, honestly, aren't too different from building great
+                                    software experiences.</p>
+                                <p>Some of my favorite series have genuinely shaped the way I think about persistence,
+                                    ambition, and the grind. If you're an anime fan too, we already have a lot to talk
+                                    about.</p>
+
+                                <h4 class="mt-4 mb-2">What's This Blog About?</h4>
+                                <p>This blog is going to be a mix of everything — technical learnings, project updates,
+                                    thoughts on ML research, and maybe the occasional personal reflection. Think of it
+                                    as a public journal of someone figuring things out in real time.</p>
+                                <p>I don't have all the answers, and I'm not pretending to. But I do have curiosity,
+                                    consistency, and a lot of keyboard time ahead of me.</p>
+                                <p>Thanks for reading. This is just the beginning.</p>
+                                <p class="mt-4"><strong>— Rishi Shandilya</strong></p>
+                            </div>
+                        </article>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Contact Section -->
+            <section id="contact" class="tab-panel">
+                <div class="content-wrapper">
+                    <h1 class="page-title">Connection Request</h1>
+                    <p class="subtitle mono">Establishing secure socket...</p>
+
+                    <div class="contact-grid mt-6">
+                        <div class="contact-text">
+                            <p>I'm always open to discussing technology, collaboration, or security protocols.</p>
+                            <p class="mt-4">Connect with me on these platforms or drop a message via the secure channel
+                                below.</p>
+                            <ul class="link-list horizontal mt-4">
+                                <li>
+                                    <a href="https://github.com/Shandilya-Rishi" target="_blank"
+                                        class="social-icon-link github" aria-label="GitHub">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                            stroke-linecap="round" stroke-linejoin="round"
+                                            class="feather feather-github">
+                                            <path
+                                                d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22">
+                                            </path>
+                                        </svg>
+                                        <span>GitHub</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="https://www.linkedin.com/in/rishi-shandilya-081958334/" target="_blank"
+                                        class="social-icon-link linkedin" aria-label="LinkedIn">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                            stroke-linecap="round" stroke-linejoin="round"
+                                            class="feather feather-linkedin">
+                                            <path
+                                                d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z">
+                                            </path>
+                                            <rect x="2" y="9" width="4" height="12"></rect>
+                                            <circle cx="4" cy="4" r="2"></circle>
+                                        </svg>
+                                        <span>LinkedIn</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="https://x.com/Rishi_S2" target="_blank" class="social-icon-link x-twitter"
+                                        aria-label="X (Twitter)">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                            stroke-linecap="round" stroke-linejoin="round"
+                                            class="feather feather-twitter">
+                                            <path
+                                                d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z">
+                                            </path>
+                                        </svg>
+                                        <span>X (Twitter)</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="mailto:rishishandilya1@outlook.com" class="social-icon-link email"
+                                        aria-label="Email">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                            stroke-linecap="round" stroke-linejoin="round" class="feather feather-mail">
+                                            <path
+                                                d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z">
+                                            </path>
+                                            <polyline points="22,6 12,13 2,6"></polyline>
+                                        </svg>
+                                        <span>Email</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <form class="retro-form"
+                            onsubmit="event.preventDefault(); alert('Transmission sequence initiated (Backend coming soon)!');">
+                            <div class="input-group">
+                                <label for="name">Identifier</label>
+                                <input type="text" id="name" required placeholder="_">
+                            </div>
+                            <div class="input-group">
+                                <label for="email">Return URI (Email)</label>
+                                <input type="email" id="email" required placeholder="_">
+                            </div>
+                            <div class="input-group">
+                                <label for="message">Payload</label>
+                                <textarea id="message" rows="5" required placeholder="_"></textarea>
+                            </div>
+                            <button type="submit" class="action-btn">Commit & Push <span class="arrow">→</span></button>
+                        </form>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- Terminal-style Footer -->
+        <footer class="main-footer">
+            <div class="footer-inner">
+                <p class="mono text-small">
+                    <!-- simulate a git status output -->
+                    <span class="git-status">master*</span>
+                    &copy;
+                    <script>document.write(new Date().getFullYear())</script> Rishi.
+                    <a href="#" class="inline-link">View Source</a>
+                </p>
+                <div class="git-line horizontal">
+                    <div class="git-node"></div>
+                </div>
+            </div>
+        </footer>
+
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
