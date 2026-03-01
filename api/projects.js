@@ -1,7 +1,6 @@
-const { sql } = require('@vercel/postgres');
+const { get } = require('@vercel/edge-config');
 
 module.exports = async function handler(req, res) {
-    // Enable CORS
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
@@ -14,13 +13,9 @@ module.exports = async function handler(req, res) {
     // --- GET ALL PROJECTS (Public) ---
     if (req.method === 'GET') {
         try {
-            const { rows } = await sql`SELECT * FROM projects ORDER BY created_at DESC`;
-            return res.status(200).json({ projects: rows });
+            const projects = await get('projects') || [];
+            return res.status(200).json({ projects: projects.reverse() });
         } catch (error) {
-            // Handle table not existing yet (first run)
-            if (error.message.includes('relation "projects" does not exist')) {
-                return res.status(200).json({ projects: [] });
-            }
             console.error('Error fetching projects:', error);
             return res.status(500).json({ error: 'Failed to fetch projects' });
         }
@@ -32,6 +27,21 @@ module.exports = async function handler(req, res) {
         return res.status(401).json({ error: 'Unauthorized to modify projects' });
     }
 
+    // Helper to call Vercel REST API
+    async function updateEdgeConfig(key, value) {
+        const updateRes = await fetch(`https://api.vercel.com/v1/edge-config/${process.env.EDGE_CONFIG_ID}/items`, {
+            method: 'PATCH',
+            headers: {
+                Authorization: `Bearer ${process.env.VERCEL_API_TOKEN}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                items: [{ operation: 'upsert', key, value }],
+            }),
+        });
+        if (!updateRes.ok) throw new Error('Failed to update Edge Config via Vercel API');
+    }
+
     // --- CREATE/UPDATE PROJECT (Protected) ---
     if (req.method === 'POST') {
         const { title, description, link, language, images } = req.body;
@@ -41,39 +51,25 @@ module.exports = async function handler(req, res) {
         }
 
         try {
-            await sql`
-                INSERT INTO projects (title, description, link, language, images, created_at)
-                VALUES (${title}, ${description}, ${link || ''}, ${language || ''}, ${JSON.stringify(images || [])}, NOW())
-            `;
+            let projects = await get('projects') || [];
+
+            const newProject = {
+                id: Date.now(),
+                title,
+                description,
+                link: link || '',
+                language: language || '',
+                images: images || [],
+                created_at: new Date().toISOString()
+            };
+
+            projects.push(newProject);
+            await updateEdgeConfig('projects', projects);
+
             return res.status(200).json({ success: true });
         } catch (error) {
-            // Handle table not existing
-            if (error.message.includes('relation "projects" does not exist')) {
-                try {
-                    await sql`
-                         CREATE TABLE projects (
-                             id SERIAL PRIMARY KEY,
-                             title VARCHAR(255) NOT NULL,
-                             description TEXT NOT NULL,
-                             link VARCHAR(255),
-                             language VARCHAR(50),
-                             images JSONB,
-                             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                         );
-                     `;
-                    // Retry insert
-                    await sql`
-                        INSERT INTO projects (title, description, link, language, images, created_at)
-                        VALUES (${title}, ${description}, ${link || ''}, ${language || ''}, ${JSON.stringify(images || [])}, NOW())
-                    `;
-                    return res.status(200).json({ success: true });
-                } catch (innerError) {
-                    console.error('Failed to create projects table:', innerError);
-                    return res.status(500).json({ error: 'Internal Server Error' });
-                }
-            }
             console.error('Error creating project:', error);
-            return res.status(500).json({ error: 'Failed to create project' });
+            return res.status(500).json({ error: 'Failed to save to Edge Config. Note: VERCEL_API_TOKEN and EDGE_CONFIG_ID env vars must be set.' });
         }
     }
 
@@ -83,7 +79,11 @@ module.exports = async function handler(req, res) {
         if (!id) return res.status(400).json({ error: 'Project ID required' });
 
         try {
-            await sql`DELETE FROM projects WHERE id = ${id}`;
+            let projects = await get('projects') || [];
+            projects = projects.filter(p => p.id !== id);
+
+            await updateEdgeConfig('projects', projects);
+
             return res.status(200).json({ success: true });
         } catch (error) {
             console.error('Error deleting project:', error);

@@ -1,10 +1,9 @@
-const { sql } = require('@vercel/postgres');
+const { get } = require('@vercel/edge-config');
 
 module.exports = async function handler(req, res) {
-    // Enable CORS for development and specific domains
-    res.setHeader('Access-Control-Allow-Origin', '*'); // Adjust this in production
+    res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
     if (req.method === 'OPTIONS') {
         res.status(200).end();
@@ -19,58 +18,63 @@ module.exports = async function handler(req, res) {
         }
 
         try {
-            await sql`
-                INSERT INTO contacts (name, email, message, created_at)
-                VALUES (${name}, ${email}, ${message}, NOW())
-            `;
+            // Read existing messages from Edge Config
+            let messages = await get('messages') || [];
+
+            const newMessage = {
+                id: Date.now(),
+                name,
+                email,
+                message,
+                created_at: new Date().toISOString()
+            };
+
+            messages.push(newMessage);
+
+            // Edge Configs cannot be updated directly via the SDK. We must use the Vercel REST API.
+            // Requires VERCEL_API_TOKEN environment variable.
+            const updateRes = await fetch(`https://api.vercel.com/v1/edge-config/${process.env.EDGE_CONFIG_ID}/items`, {
+                method: 'PATCH',
+                headers: {
+                    Authorization: `Bearer ${process.env.VERCEL_API_TOKEN}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    items: [
+                        {
+                            operation: 'upsert',
+                            key: 'messages',
+                            value: messages,
+                        },
+                    ],
+                }),
+            });
+
+            if (!updateRes.ok) throw new Error('Failed to update Edge Config via Vercel API');
+
             return res.status(200).json({ success: true, message: 'Message sent successfully!' });
         } catch (error) {
             console.error('Failed to submit contact form:', error);
-            // Handle table not existing (first run)
-            if (error.message.includes('relation "contacts" does not exist')) {
-                try {
-                    await sql`
-                         CREATE TABLE contacts (
-                             id SERIAL PRIMARY KEY,
-                             name VARCHAR(255) NOT NULL,
-                             email VARCHAR(255) NOT NULL,
-                             message TEXT NOT NULL,
-                             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                         );
-                     `;
-                    await sql`
-                        INSERT INTO contacts (name, email, message, created_at)
-                        VALUES (${name}, ${email}, ${message}, NOW())
-                    `;
-                    return res.status(200).json({ success: true, message: 'Message sent successfully (Table auto-created)!' });
-                } catch (innerError) {
-                    console.error('Failed to create table and insert:', innerError);
-                    return res.status(500).json({ error: 'Internal Server Error after creating table' });
-                }
-            }
-            return res.status(500).json({ error: 'Internal Server Error' });
+            return res.status(500).json({ error: 'Failed to save to Edge Config. Note: VERCEL_API_TOKEN and EDGE_CONFIG_ID env vars must be set.' });
         }
-    } else if (req.method === 'GET') {
-        // This GET route is for the dashboard to fetch messages
-        // In a real app, protect this with authentication!
+    }
 
+    else if (req.method === 'GET') {
         const authHeader = req.headers.authorization;
-        // Extremely basic auth for this demo dashboard
         if (authHeader !== `Bearer ${process.env.ADMIN_SECRET || 'dev_secret_key'}`) {
             return res.status(401).json({ error: 'Unauthorized' });
         }
 
         try {
-            // Check if table exists first by querying it, catch error if not
-            const { rows } = await sql`SELECT * FROM contacts ORDER BY created_at DESC`;
-            return res.status(200).json({ messages: rows });
+            const messages = await get('messages') || [];
+            // Return newest first
+            return res.status(200).json({ messages: messages.reverse() });
         } catch (error) {
-            if (error.message.includes('relation "contacts" does not exist')) {
-                return res.status(200).json({ messages: [] }); // No table = no messages yet
-            }
-            return res.status(500).json({ error: 'Failed to fetch messages' });
+            return res.status(500).json({ error: 'Failed to fetch messages from Edge Config' });
         }
-    } else {
+    }
+
+    else {
         res.setHeader('Allow', ['POST', 'GET', 'OPTIONS']);
         return res.status(405).end(`Method ${req.method} Not Allowed`);
     }

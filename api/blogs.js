@@ -1,7 +1,6 @@
-const { sql } = require('@vercel/postgres');
+const { get } = require('@vercel/edge-config');
 
 module.exports = async function handler(req, res) {
-    // Enable CORS
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
@@ -14,13 +13,9 @@ module.exports = async function handler(req, res) {
     // --- GET ALL BLOG POSTS (Public) ---
     if (req.method === 'GET') {
         try {
-            const { rows } = await sql`SELECT * FROM blogs ORDER BY date DESC`;
-            return res.status(200).json({ blogs: rows });
+            const blogs = await get('blogs') || [];
+            return res.status(200).json({ blogs: blogs.reverse() });
         } catch (error) {
-            // Handle table not existing
-            if (error.message.includes('relation "blogs" does not exist')) {
-                return res.status(200).json({ blogs: [] });
-            }
             console.error('Error fetching blogs:', error);
             return res.status(500).json({ error: 'Failed to fetch blogs' });
         }
@@ -32,6 +27,21 @@ module.exports = async function handler(req, res) {
         return res.status(401).json({ error: 'Unauthorized to modify blogs' });
     }
 
+    // Helper to call Vercel REST API
+    async function updateEdgeConfig(key, value) {
+        const updateRes = await fetch(`https://api.vercel.com/v1/edge-config/${process.env.EDGE_CONFIG_ID}/items`, {
+            method: 'PATCH',
+            headers: {
+                Authorization: `Bearer ${process.env.VERCEL_API_TOKEN}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                items: [{ operation: 'upsert', key, value }],
+            }),
+        });
+        if (!updateRes.ok) throw new Error('Failed to update Edge Config via Vercel API');
+    }
+
     // --- CREATE/UPDATE BLOG (Protected) ---
     if (req.method === 'POST') {
         const { title, date, content } = req.body;
@@ -41,36 +51,22 @@ module.exports = async function handler(req, res) {
         }
 
         try {
-            await sql`
-                INSERT INTO blogs (title, date, content)
-                VALUES (${title}, ${date}, ${content})
-            `;
+            let blogs = await get('blogs') || [];
+
+            const newBlog = {
+                id: Date.now(),
+                title,
+                date,
+                content
+            };
+
+            blogs.push(newBlog);
+            await updateEdgeConfig('blogs', blogs);
+
             return res.status(200).json({ success: true });
         } catch (error) {
-            // Handle table not existing
-            if (error.message.includes('relation "blogs" does not exist')) {
-                try {
-                    await sql`
-                         CREATE TABLE blogs (
-                             id SERIAL PRIMARY KEY,
-                             title VARCHAR(255) NOT NULL,
-                             date DATE NOT NULL,
-                             content TEXT NOT NULL
-                         );
-                     `;
-                    // Retry insert
-                    await sql`
-                        INSERT INTO blogs (title, date, content)
-                        VALUES (${title}, ${date}, ${content})
-                    `;
-                    return res.status(200).json({ success: true });
-                } catch (innerError) {
-                    console.error('Failed to create blogs table:', innerError);
-                    return res.status(500).json({ error: 'Internal Server Error' });
-                }
-            }
             console.error('Error creating blog:', error);
-            return res.status(500).json({ error: 'Failed to create blog post' });
+            return res.status(500).json({ error: 'Failed to save to Edge Config. Note: VERCEL_API_TOKEN and EDGE_CONFIG_ID env vars must be set.' });
         }
     }
 
@@ -80,7 +76,11 @@ module.exports = async function handler(req, res) {
         if (!id) return res.status(400).json({ error: 'Blog ID required' });
 
         try {
-            await sql`DELETE FROM blogs WHERE id = ${id}`;
+            let blogs = await get('blogs') || [];
+            blogs = blogs.filter(b => b.id !== id);
+
+            await updateEdgeConfig('blogs', blogs);
+
             return res.status(200).json({ success: true });
         } catch (error) {
             console.error('Error deleting blog:', error);
