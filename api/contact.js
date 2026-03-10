@@ -1,6 +1,7 @@
-const { get } = require('@vercel/edge-config');
+import { get } from '@vercel/edge-config';
+import { localData, isDev } from './localData.js';
 
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
@@ -18,8 +19,13 @@ module.exports = async function handler(req, res) {
         }
 
         try {
-            // Read existing messages from Edge Config
-            let messages = await get('messages') || [];
+            // Read existing messages from Edge Config or local data
+            let messages;
+            if (isDev) {
+                messages = localData.messages;
+            } else {
+                messages = await get('messages') || [];
+            }
 
             const newMessage = {
                 id: Date.now(),
@@ -31,31 +37,33 @@ module.exports = async function handler(req, res) {
 
             messages.push(newMessage);
 
-            // Edge Configs cannot be updated directly via the SDK. We must use the Vercel REST API.
-            // Requires VERCEL_API_TOKEN environment variable.
-            const updateRes = await fetch(`https://api.vercel.com/v1/edge-config/${process.env.EDGE_CONFIG_ID}/items`, {
-                method: 'PATCH',
-                headers: {
-                    Authorization: `Bearer ${process.env.VERCEL_API_TOKEN}`,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    items: [
-                        {
-                            operation: 'upsert',
-                            key: 'messages',
-                            value: messages,
-                        },
-                    ],
-                }),
-            });
+            if (!isDev) {
+                // Edge Configs cannot be updated directly via the SDK. We must use the Vercel REST API.
+                // Requires VERCEL_API_TOKEN environment variable.
+                const updateRes = await fetch(`https://api.vercel.com/v1/edge-config/${process.env.EDGE_CONFIG_ID}/items`, {
+                    method: 'PATCH',
+                    headers: {
+                        Authorization: `Bearer ${process.env.VERCEL_API_TOKEN}`,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        items: [
+                            {
+                                operation: 'upsert',
+                                key: 'messages',
+                                value: messages,
+                            },
+                        ],
+                    }),
+                });
 
-            if (!updateRes.ok) throw new Error('Failed to update Edge Config via Vercel API');
+                if (!updateRes.ok) throw new Error('Failed to update Edge Config via Vercel API');
+            }
 
             return res.status(200).json({ success: true, message: 'Message sent successfully!' });
         } catch (error) {
             console.error('Failed to submit contact form:', error);
-            return res.status(500).json({ error: 'Failed to save to Edge Config. Note: VERCEL_API_TOKEN and EDGE_CONFIG_ID env vars must be set.' });
+            return res.status(500).json({ error: 'Failed to save message' });
         }
     }
 
@@ -66,11 +74,16 @@ module.exports = async function handler(req, res) {
         }
 
         try {
-            const messages = await get('messages') || [];
+            let messages;
+            if (isDev) {
+                messages = localData.messages;
+            } else {
+                messages = await get('messages') || [];
+            }
             // Return newest first
             return res.status(200).json({ messages: messages.reverse() });
         } catch (error) {
-            return res.status(500).json({ error: 'Failed to fetch messages from Edge Config' });
+            return res.status(500).json({ error: 'Failed to fetch messages' });
         }
     }
 
