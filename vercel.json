@@ -1,0 +1,19 @@
+{
+  "functions": {
+    "api/contact.js": {
+      "runtime": "nodejs18.x"
+    },
+    "api/projects.js": {
+      "runtime": "nodejs18.x"
+    },
+    "api/blogs.js": {
+      "runtime": "nodejs18.x"
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/api/$1"
+    }
+  ]
+}

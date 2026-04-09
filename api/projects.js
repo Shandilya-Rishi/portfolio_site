@@ -1,6 +1,7 @@
-const { get } = require('@vercel/edge-config');
+import { get } from '@vercel/edge-config';
+import { localData, isDev } from './localData.js';
 
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
@@ -13,7 +14,12 @@ module.exports = async function handler(req, res) {
     // --- GET ALL PROJECTS (Public) ---
     if (req.method === 'GET') {
         try {
-            const projects = await get('projects') || [];
+            let projects;
+            if (isDev) {
+                projects = localData.projects;
+            } else {
+                projects = await get('projects') || [];
+            }
             return res.status(200).json({ projects: projects.reverse() });
         } catch (error) {
             console.error('Error fetching projects:', error);
@@ -51,7 +57,12 @@ module.exports = async function handler(req, res) {
         }
 
         try {
-            let projects = await get('projects') || [];
+            let projects;
+            if (isDev) {
+                projects = localData.projects;
+            } else {
+                projects = await get('projects') || [];
+            }
 
             const newProject = {
                 id: Date.now(),
@@ -64,12 +75,15 @@ module.exports = async function handler(req, res) {
             };
 
             projects.push(newProject);
-            await updateEdgeConfig('projects', projects);
+
+            if (!isDev) {
+                await updateEdgeConfig('projects', projects);
+            }
 
             return res.status(200).json({ success: true });
         } catch (error) {
             console.error('Error creating project:', error);
-            return res.status(500).json({ error: 'Failed to save to Edge Config. Note: VERCEL_API_TOKEN and EDGE_CONFIG_ID env vars must be set.' });
+            return res.status(500).json({ error: 'Failed to save project' });
         }
     }
 
@@ -79,10 +93,17 @@ module.exports = async function handler(req, res) {
         if (!id) return res.status(400).json({ error: 'Project ID required' });
 
         try {
-            let projects = await get('projects') || [];
+            let projects;
+            if (isDev) {
+                projects = localData.projects;
+            } else {
+                projects = await get('projects') || [];
+            }
             projects = projects.filter(p => p.id !== id);
 
-            await updateEdgeConfig('projects', projects);
+            if (!isDev) {
+                await updateEdgeConfig('projects', projects);
+            }
 
             return res.status(200).json({ success: true });
         } catch (error) {

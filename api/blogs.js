@@ -1,6 +1,7 @@
-const { get } = require('@vercel/edge-config');
+import { get } from '@vercel/edge-config';
+import { localData, isDev } from './localData.js';
 
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
@@ -13,7 +14,12 @@ module.exports = async function handler(req, res) {
     // --- GET ALL BLOG POSTS (Public) ---
     if (req.method === 'GET') {
         try {
-            const blogs = await get('blogs') || [];
+            let blogs;
+            if (isDev) {
+                blogs = localData.blogs;
+            } else {
+                blogs = await get('blogs') || [];
+            }
             return res.status(200).json({ blogs: blogs.reverse() });
         } catch (error) {
             console.error('Error fetching blogs:', error);
@@ -51,7 +57,12 @@ module.exports = async function handler(req, res) {
         }
 
         try {
-            let blogs = await get('blogs') || [];
+            let blogs;
+            if (isDev) {
+                blogs = localData.blogs;
+            } else {
+                blogs = await get('blogs') || [];
+            }
 
             const newBlog = {
                 id: Date.now(),
@@ -61,12 +72,15 @@ module.exports = async function handler(req, res) {
             };
 
             blogs.push(newBlog);
-            await updateEdgeConfig('blogs', blogs);
+
+            if (!isDev) {
+                await updateEdgeConfig('blogs', blogs);
+            }
 
             return res.status(200).json({ success: true });
         } catch (error) {
             console.error('Error creating blog:', error);
-            return res.status(500).json({ error: 'Failed to save to Edge Config. Note: VERCEL_API_TOKEN and EDGE_CONFIG_ID env vars must be set.' });
+            return res.status(500).json({ error: 'Failed to save blog' });
         }
     }
 
@@ -76,10 +90,17 @@ module.exports = async function handler(req, res) {
         if (!id) return res.status(400).json({ error: 'Blog ID required' });
 
         try {
-            let blogs = await get('blogs') || [];
+            let blogs;
+            if (isDev) {
+                blogs = localData.blogs;
+            } else {
+                blogs = await get('blogs') || [];
+            }
             blogs = blogs.filter(b => b.id !== id);
 
-            await updateEdgeConfig('blogs', blogs);
+            if (!isDev) {
+                await updateEdgeConfig('blogs', blogs);
+            }
 
             return res.status(200).json({ success: true });
         } catch (error) {
